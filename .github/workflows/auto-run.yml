@@ -1,0 +1,31 @@
+name: Auto Runner
+
+on:
+  # Chạy mỗi 5 phút
+  schedule:
+    - cron: '*/5 * * * *'
+  # Chạy khi có push vào branch main
+  push:
+    branches: [ main ]
+  # Cho phép chạy thủ công từ GitHub UI
+  workflow_dispatch:
+
+jobs:
+  auto-task:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Run automated task
+      run: |
+        echo "🔄 Auto task đang chạy..."
+        echo "Thời gian: $(date)"
+        # Thêm script của bạn ở đây
+        node your-script.js
