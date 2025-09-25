@@ -1,18 +1,22 @@
-name: Auto Runner
+name: Advanced Auto Runner
 
 on:
-  # Chạy mỗi 5 phút
   schedule:
-    - cron: '*/5 * * * *'
-  # Chạy khi có push vào branch main
+    - cron: '*/15 * * * *'
   push:
-    branches: [ main ]
-  # Cho phép chạy thủ công từ GitHub UI
+    branches: [ main, develop ]
   workflow_dispatch:
 
+env:
+  NODE_ENV: production
+
 jobs:
-  auto-task:
+  main-task:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
     
     steps:
     - name: Checkout code
@@ -21,11 +25,25 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
         
-    - name: Run automated task
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Run main script
+      run: npm start
+      
+    - name: Notify success
+      if: success()
       run: |
-        echo "🔄 Auto task đang chạy..."
-        echo "Thời gian: $(date)"
-        # Thêm script của bạn ở đây
-        node your-script.js
+        echo "✅ Task completed successfully!"
+        
+    - name: Notify failure
+      if: failure()
+      run: |
+        echo "❌ Task failed!"
+        # Có thể thêm webhook notification ở đây
